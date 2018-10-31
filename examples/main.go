@@ -9,11 +9,14 @@ import (
 )
 
 func main() {
-	client := api.NewClientBuilder("YOUR_ID_HERE", "YOUR_KEY_HERE").Build()
+	client := api.NewClientBuilder("clientId", "clientSecret").Build()
 
-	params := params.With("IATACode", "AI,3H")
-	statusCode, response, err := client.ReferencedData.Airlines.GetWithParams(params)
-	//statusCode, response, err := client.ReferencedData.Airlines.Get()
+	//params := params.With("IATACode", "AI,3H")
+	//statusCode, response, err := client.ReferencedData.Airlines.GetWithParams(params)
+	//params := params.With("keyword", "lon").And("subType", "AIRPORT,CITY")
+	//statusCode, response, err := client.ReferencedData.Locations.GetWithParams(params)
+	params := params.With("airline", "AF")
+	statusCode, response, err := client.ReferencedData.Urls.CheckinLinks.GetWithParams(params)
 
 	if err != nil {
 		if amadeusError, ok := err.(errors.AmadeusError); ok {

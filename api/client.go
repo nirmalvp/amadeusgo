@@ -64,7 +64,27 @@ func generateClient(cb clientBuilder) client {
 	airlinesRepository := AmadeusHTTPRepository{&accessToken, airlinesUrlPaths, config}
 	airlines := referencedata.NewAirlines(airlinesRepository)
 
+	// Initialize locations Service here
+	locationsUrlPaths := map[types.Action]string{
+		types.READ: "/v1/reference-data/locations",
+	}
+
+	//airlineRepository is not an open resource and hence need a access token service
+	locationsRepository := AmadeusHTTPRepository{&accessToken, locationsUrlPaths, config}
+	locations := referencedata.NewLocations(locationsRepository)
+
+	// Initialize locations Service here
+	checkinLinksUrlPaths := map[types.Action]string{
+		types.READ: "/v2/reference-data/urls/checkin-links",
+	}
+
+	//airlineRepository is not an open resource and hence need a access token service
+	checkinlinksRepository := AmadeusHTTPRepository{&accessToken, checkinLinksUrlPaths, config}
+	checkinlinks := referencedata.NewCheckinLinks(checkinlinksRepository)
+
+	urls := referencedata.NewUrls(checkinlinks)
+
 	// Create referencedData here. Only airlines implemented as of now
-	referencedataObj := referencedata.NewReferenceData("s", "a", airlines)
+	referencedataObj := referencedata.NewReferenceData(urls, locations, airlines)
 	return newClient(referencedataObj)
 }

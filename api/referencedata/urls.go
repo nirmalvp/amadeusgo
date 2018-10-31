@@ -1,3 +1,9 @@
 package referencedata
 
-// TO Do
+type urls struct {
+	CheckinLinks *checkinLinks
+}
+
+func NewUrls(checkinLinks *checkinLinks) *urls {
+	return &urls{CheckinLinks: checkinLinks}
+}

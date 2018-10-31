@@ -24,6 +24,8 @@ type clientBuilder struct {
 }
 
 func NewClientBuilder(clientId, clientSecret string) clientBuilder {
+	clientId = os.Getenv("AMADEUS_CLIENT_ID")
+	clientSecret = os.Getenv("AMADEUS_CLIENT_SECRET")
 	return clientBuilder{
 		clientId:        clientId,
 		clientSecret:    clientSecret,
