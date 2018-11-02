@@ -1,12 +1,12 @@
 package referencedata
 
 type ReferenceData struct {
-	Urls      *urls
+	Urls      string
 	Locations *locations
 	Airlines  *airlines
 }
 
-func NewReferenceData(urls *urls, locations *locations, airlines *airlines) *ReferenceData {
+func NewReferenceData(urls string, locations *locations, airlines *airlines) *ReferenceData {
 	return &ReferenceData{
 		Urls:      urls,
 		Locations: locations,
@@ -14,6 +14,6 @@ func NewReferenceData(urls *urls, locations *locations, airlines *airlines) *Ref
 	}
 }
 
-func (referenceData *ReferenceData) Location(locationId string) *Location {
+/*func (referenceData *ReferenceData) Location(locationId string) *Location {
 	return NewLocation(locationId)
-}
+}*/

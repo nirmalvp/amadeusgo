@@ -1,5 +1,6 @@
 package referencedata
 
+/*
 import (
 	"encoding/json"
 
@@ -26,7 +27,7 @@ func (checkinLinks *checkinLinks) GetWithParams(params params.Params) (int, resp
 	err = json.Unmarshal(responseBody, &formatedResponse)
 	return statusCode, formatedResponse, err
 }
-
-func NewCheckinLinks(checkinLinksRepository interfaces.AmadeusRepository) *checkinLinks {
+*/
+/*func NewCheckinLinks(checkinLinksRepository interfaces.AmadeusRepository) *checkinLinks {
 	return &checkinLinks{checkinLinksRepository}
-}
+}*/
