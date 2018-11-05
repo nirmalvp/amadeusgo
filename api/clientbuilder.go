@@ -31,8 +31,8 @@ type clientBuilder struct {
 //can set customizable elements calling functions on the client builder and
 //finally create the client using the build() function
 func NewClientBuilder() clientBuilder {
-	clientId = os.Getenv("AMADEUS_CLIENT_ID")
-	clientSecret = os.Getenv("AMADEUS_CLIENT_SECRET")
+	clientId := os.Getenv("AMADEUS_CLIENT_ID")
+	clientSecret := os.Getenv("AMADEUS_CLIENT_SECRET")
 	return clientBuilder{
 		clientId:        clientId,
 		clientSecret:    clientSecret,
