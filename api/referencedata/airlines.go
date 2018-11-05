@@ -1,8 +1,6 @@
 package referencedata
 
 import (
-	"encoding/json"
-
 	"github.com/nirmalvp/amadeusgo/api/interfaces"
 	"github.com/nirmalvp/amadeusgo/api/params"
 	"github.com/nirmalvp/amadeusgo/api/request"
@@ -16,24 +14,21 @@ type airlines struct {
 	AuthenticatedRequestCreator *service.AuthenticatedRequestCreator
 }
 
-func (airlines *airlines) Get() (int, response.Airlines, error) {
+func (airlines *airlines) Get() (response.Airlines, error) {
 	return airlines.GetWithParams(nil)
 
 }
 
-func (airlines *airlines) GetWithParams(params params.Params) (int, response.Airlines, error) {
+func (airlines *airlines) GetWithParams(params params.Params) (response.Airlines, error) {
 	request, authenticationErr := airlines.AuthenticatedRequestCreator.Create(request.GET, airlines.PathUrl, params)
 	if authenticationErr != nil {
-		return 0, response.Airlines{}, authenticationErr
+		return response.Airlines{}, authenticationErr
 	}
 	statusCode, responseBody, err := airlines.RestClient.Send(request)
 	if err != nil {
-		return 0, response.Airlines{}, err
+		return response.Airlines{}, err
 	}
-	var formatedRestResponse response.AirlineRest
-	err = json.Unmarshal(responseBody, &formatedRestResponse)
-	formatedClientResponse := response.NewAirlineResponse(statusCode, formatedRestResponse, request, err == nil)
-	return statusCode, formatedClientResponse, err
+	return response.NewAirlineResponse(statusCode, responseBody, request), nil
 }
 
 func NewAirlines(restClient interfaces.AmadeusRest, authenticatedRequestCreator *service.AuthenticatedRequestCreator) *airlines {

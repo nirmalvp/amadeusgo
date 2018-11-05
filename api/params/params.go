@@ -10,6 +10,9 @@ func (params Params) And(key string, value interface{}) Params {
 	case int:
 		// here val has type int
 		params[key] = fmt.Sprintf("%d", val)
+	case float32, float64:
+		params[key] = fmt.Sprintf("%f", val)
+
 	case string:
 		params[key] = fmt.Sprintf("%s", val)
 	default:
@@ -24,6 +27,8 @@ func With(key string, value interface{}) Params {
 	case int:
 		// here val has type int
 		params[key] = fmt.Sprintf("%d", val)
+	case float32, float64:
+		params[key] = fmt.Sprintf("%f", val)
 	case string:
 		params[key] = fmt.Sprintf("%s", val)
 	default:

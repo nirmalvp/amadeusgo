@@ -43,7 +43,8 @@ func generateClient(cb clientBuilder) client {
 	authenticatedRequestCreator := service.NewAuthenticatedRequestCreator(config, accessTokenService)
 
 	airlines := referencedata.NewAirlines(restClient, authenticatedRequestCreator)
-	locations := referencedata.NewLocations(restClient, authenticatedRequestCreator)
+	airports := referencedata.NewAirports(restClient, authenticatedRequestCreator)
+	locations := referencedata.NewLocations(restClient, authenticatedRequestCreator, airports)
 	checkinlinks := referencedata.NewCheckinLinks(restClient, authenticatedRequestCreator)
 	urls := referencedata.NewUrls(checkinlinks)
 

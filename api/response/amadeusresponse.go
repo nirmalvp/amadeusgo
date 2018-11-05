@@ -7,6 +7,7 @@ import "github.com/nirmalvp/amadeusgo/api/request"
 // the user from the SDK
 type AmadeusResponse struct {
 	StatusCode int
+	Body       string
 	Request    request.AmadeusRequestData
 	Parsed     bool
 }

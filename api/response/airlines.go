@@ -1,6 +1,9 @@
 package response
 
-import "github.com/nirmalvp/amadeusgo/api/request"
+import (
+	"encoding/json"
+	"github.com/nirmalvp/amadeusgo/api/request"
+)
 
 // Structure of the Data part of the AMadeus API response.
 type AirlineData struct {
@@ -23,15 +26,17 @@ type Airlines struct {
 	Data   []AirlineData
 }
 
-func NewAirlineResponse(statusCode int, airlineRestResp AirlineRest, request request.AmadeusRequestData, isParsed bool) Airlines {
+func NewAirlineResponse(statusCode int, responseBody []byte, request request.AmadeusRequestData) Airlines {
+	var formatedRestResponse AirlineRest
+	parseError := json.Unmarshal(responseBody, &formatedRestResponse)
 	return Airlines{
 		AmadeusResponse: AmadeusResponse{
 			StatusCode: statusCode,
+			Body:       string(responseBody),
 			Request:    request,
-			Parsed:     isParsed,
+			Parsed:     parseError == nil,
 		},
-		Result: airlineRestResp,
-		Data:   airlineRestResp.Data,
+		Result: formatedRestResponse,
+		Data:   formatedRestResponse.Data,
 	}
-
 }

@@ -1,6 +1,9 @@
 package response
 
-import "github.com/nirmalvp/amadeusgo/api/request"
+import (
+	"encoding/json"
+	"github.com/nirmalvp/amadeusgo/api/request"
+)
 
 type checkinLinksData struct {
 	Type    string
@@ -20,15 +23,18 @@ type CheckinLinks struct {
 	Data   []checkinLinksData
 }
 
-func NewCheckinLinksResponse(statusCode int, checkinLinksRest CheckinLinksRest, request request.AmadeusRequestData, isParsed bool) CheckinLinks {
+func NewCheckinLinksResponse(statusCode int, responseBody []byte, request request.AmadeusRequestData) CheckinLinks {
+	var formatedRestResponse CheckinLinksRest
+	parseError := json.Unmarshal(responseBody, &formatedRestResponse)
 	return CheckinLinks{
 		AmadeusResponse: AmadeusResponse{
 			StatusCode: statusCode,
+			Body:       string(responseBody),
 			Request:    request,
-			Parsed:     isParsed,
+			Parsed:     parseError == nil,
 		},
-		Result: checkinLinksRest,
-		Data:   checkinLinksRest.Data,
+		Result: formatedRestResponse,
+		Data:   formatedRestResponse.Data,
 	}
 
 }

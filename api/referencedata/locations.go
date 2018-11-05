@@ -1,8 +1,6 @@
 package referencedata
 
 import (
-	"encoding/json"
-
 	"github.com/nirmalvp/amadeusgo/api/interfaces"
 	"github.com/nirmalvp/amadeusgo/api/params"
 	"github.com/nirmalvp/amadeusgo/api/request"
@@ -14,32 +12,31 @@ type locations struct {
 	PathUrl                     string
 	RestClient                  interfaces.AmadeusRest
 	AuthenticatedRequestCreator *service.AuthenticatedRequestCreator
+	Airports                    *airports
 }
 
-func (locations *locations) Get() (int, response.Locations, error) {
+func (locations *locations) Get() (response.Locations, error) {
 	return locations.GetWithParams(nil)
 
 }
 
-func (locations *locations) GetWithParams(params params.Params) (int, response.Locations, error) {
+func (locations *locations) GetWithParams(params params.Params) (response.Locations, error) {
 	request, authenticationErr := locations.AuthenticatedRequestCreator.Create(request.GET, locations.PathUrl, params)
 	if authenticationErr != nil {
-		return 0, response.Locations{}, authenticationErr
+		return response.Locations{}, authenticationErr
 	}
 	statusCode, responseBody, err := locations.RestClient.Send(request)
 	if err != nil {
-		return 0, response.Locations{}, err
+		return response.Locations{}, err
 	}
-	var formatedRestResponse response.LocationsRest
-	err = json.Unmarshal(responseBody, &formatedRestResponse)
-	formatedClientResponse := response.NewLocationsResponse(statusCode, formatedRestResponse, request, err == nil)
-	return statusCode, formatedClientResponse, err
+	return response.NewLocationsResponse(statusCode, responseBody, request), nil
 }
 
-func NewLocations(restClient interfaces.AmadeusRest, authenticatedRequestCreator *service.AuthenticatedRequestCreator) *locations {
+func NewLocations(restClient interfaces.AmadeusRest, authenticatedRequestCreator *service.AuthenticatedRequestCreator, airports *airports) *locations {
 	return &locations{
 		PathUrl:                     "/v1/reference-data/locations",
 		RestClient:                  restClient,
 		AuthenticatedRequestCreator: authenticatedRequestCreator,
+		Airports:                    airports,
 	}
 }

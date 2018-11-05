@@ -1,8 +1,6 @@
 package referencedata
 
 import (
-	"encoding/json"
-
 	"github.com/nirmalvp/amadeusgo/api/interfaces"
 	"github.com/nirmalvp/amadeusgo/api/params"
 	"github.com/nirmalvp/amadeusgo/api/request"
@@ -16,24 +14,21 @@ type checkinLinks struct {
 	AuthenticatedRequestCreator *service.AuthenticatedRequestCreator
 }
 
-func (checkinLinks *checkinLinks) Get() (int, response.CheckinLinks, error) {
+func (checkinLinks *checkinLinks) Get() (response.CheckinLinks, error) {
 	return checkinLinks.GetWithParams(nil)
 
 }
 
-func (checkinLinks *checkinLinks) GetWithParams(params params.Params) (int, response.CheckinLinks, error) {
+func (checkinLinks *checkinLinks) GetWithParams(params params.Params) (response.CheckinLinks, error) {
 	request, authenticationErr := checkinLinks.AuthenticatedRequestCreator.Create(request.GET, checkinLinks.PathUrl, params)
 	if authenticationErr != nil {
-		return 0, response.CheckinLinks{}, authenticationErr
+		return response.CheckinLinks{}, authenticationErr
 	}
 	statusCode, responseBody, err := checkinLinks.RestClient.Send(request)
 	if err != nil {
-		return 0, response.CheckinLinks{}, err
+		return response.CheckinLinks{}, err
 	}
-	var formatedRestResponse response.CheckinLinksRest
-	err = json.Unmarshal(responseBody, &formatedRestResponse)
-	formatedClientResponse := response.NewCheckinLinksResponse(statusCode, formatedRestResponse, request, err == nil)
-	return statusCode, formatedClientResponse, err
+	return response.NewCheckinLinksResponse(statusCode, responseBody, request), nil
 }
 
 func NewCheckinLinks(restClient interfaces.AmadeusRest, authenticatedRequestCreator *service.AuthenticatedRequestCreator) *checkinLinks {

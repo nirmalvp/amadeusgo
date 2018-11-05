@@ -1,6 +1,9 @@
 package response
 
-import "github.com/nirmalvp/amadeusgo/api/request"
+import (
+	"encoding/json"
+	"github.com/nirmalvp/amadeusgo/api/request"
+)
 
 // LocationsRest represents the response from a location BULK GET
 type LocationsRest struct {
@@ -56,28 +59,34 @@ type Location struct {
 	Data   locationData
 }
 
-func NewLocationsResponse(statusCode int, locationsRestResp LocationsRest, request request.AmadeusRequestData, isParsed bool) Locations {
+func NewLocationsResponse(statusCode int, responseBody []byte, request request.AmadeusRequestData) Locations {
+	var formatedRestResponse LocationsRest
+	parseError := json.Unmarshal(responseBody, &formatedRestResponse)
 	return Locations{
 		AmadeusResponse: AmadeusResponse{
 			StatusCode: statusCode,
+			Body:       string(responseBody),
 			Request:    request,
-			Parsed:     isParsed,
+			Parsed:     parseError == nil,
 		},
-		Result: locationsRestResp,
-		Data:   locationsRestResp.Data,
+		Result: formatedRestResponse,
+		Data:   formatedRestResponse.Data,
 	}
 
 }
 
-func NewLocationResponse(statusCode int, locationRestResp LocationRest, request request.AmadeusRequestData, isParsed bool) Location {
+func NewLocationResponse(statusCode int, responseBody []byte, request request.AmadeusRequestData) Location {
+	var formatedRestResponse LocationRest
+	parseError := json.Unmarshal(responseBody, &formatedRestResponse)
 	return Location{
 		AmadeusResponse: AmadeusResponse{
 			StatusCode: statusCode,
+			Body:       string(responseBody),
 			Request:    request,
-			Parsed:     isParsed,
+			Parsed:     parseError == nil,
 		},
-		Result: locationRestResp,
-		Data:   locationRestResp.Data,
+		Result: formatedRestResponse,
+		Data:   formatedRestResponse.Data,
 	}
 
 }
