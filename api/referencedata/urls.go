@@ -1,6 +1,5 @@
 package referencedata
 
-/*
 type urls struct {
 	CheckinLinks *checkinLinks
 }
@@ -8,4 +7,3 @@ type urls struct {
 func NewUrls(checkinLinks *checkinLinks) *urls {
 	return &urls{CheckinLinks: checkinLinks}
 }
-*/

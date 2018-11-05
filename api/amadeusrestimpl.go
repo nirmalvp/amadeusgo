@@ -13,9 +13,9 @@ type AmadeusRequester struct {
 	requester *gorequest.SuperAgent
 }
 
-type AmadeusHTTPRepository struct{}
+type AmadeusRestClient struct{}
 
-func (amRepo *AmadeusHTTPRepository) Send(amRequest request.AmadeusRequestData) (int, []byte, error) {
+func (amRepo *AmadeusRestClient) Send(amRequest request.AmadeusRequestData) (int, []byte, error) {
 	amadeusRequester := AmadeusRequester{gorequest.New()}
 	switch amRequest.Verb {
 	case request.GET:
@@ -46,6 +46,9 @@ func (amRepo *AmadeusHTTPRepository) Send(amRequest request.AmadeusRequestData) 
 	httpresponse = []byte(body)
 	statusCode := resp.StatusCode
 	if statusCode >= 400 {
+		// Try two different error responses, falling back if the first doesnt work
+		// This is done due to a inconsistency in the error body returned
+		// from amadeus API
 		errorResponse := response.RestErrorResponse{}
 		unmarshallErr := json.Unmarshal(httpresponse, &errorResponse)
 		if unmarshallErr != nil {
@@ -54,7 +57,7 @@ func (amRepo *AmadeusHTTPRepository) Send(amRequest request.AmadeusRequestData) 
 			unmarshallErr = json.Unmarshal(httpresponse, &errorResponseFallback)
 			return 0, nil, response.NewResponseError(statusCode, errorResponseFallback, amRequest, unmarshallErr == nil)
 		}
-		return 0, nil, response.NewResponseError(statusCode, errorResponse, amRequest, unmarshallErr == nil)
+		return 0, nil, response.NewResponseError(statusCode, errorResponse, amRequest, true)
 	}
 	return statusCode, httpresponse, nil
 }

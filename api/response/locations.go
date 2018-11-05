@@ -2,12 +2,19 @@ package response
 
 import "github.com/nirmalvp/amadeusgo/api/request"
 
+// LocationsRest represents the response from a location BULK GET
 type LocationsRest struct {
 	Meta Meta
-	Data []LocationsData
+	Data []locationData
 }
 
-type LocationsData struct {
+// LocationRest represents the response from a location by Id GET
+type LocationRest struct {
+	Meta Meta
+	Data locationData
+}
+
+type locationData struct {
 	Type         string
 	SubType      string
 	Name         string
@@ -40,11 +47,30 @@ type LocationsData struct {
 type Locations struct {
 	AmadeusResponse
 	Result LocationsRest
-	Data   []LocationsData
+	Data   []locationData
 }
 
-func NewLocationsResponse(statusCode int, locationRestResp LocationsRest, request request.AmadeusRequestData, isParsed bool) Locations {
+type Location struct {
+	AmadeusResponse
+	Result LocationRest
+	Data   locationData
+}
+
+func NewLocationsResponse(statusCode int, locationsRestResp LocationsRest, request request.AmadeusRequestData, isParsed bool) Locations {
 	return Locations{
+		AmadeusResponse: AmadeusResponse{
+			StatusCode: statusCode,
+			Request:    request,
+			Parsed:     isParsed,
+		},
+		Result: locationsRestResp,
+		Data:   locationsRestResp.Data,
+	}
+
+}
+
+func NewLocationResponse(statusCode int, locationRestResp LocationRest, request request.AmadeusRequestData, isParsed bool) Location {
+	return Location{
 		AmadeusResponse: AmadeusResponse{
 			StatusCode: statusCode,
 			Request:    request,

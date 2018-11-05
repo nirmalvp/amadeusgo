@@ -2,6 +2,7 @@ package response
 
 import "github.com/nirmalvp/amadeusgo/api/request"
 
+// Structure of the Data part of the AMadeus API response.
 type AirlineData struct {
 	Type         string
 	IataCode     string
@@ -9,11 +10,13 @@ type AirlineData struct {
 	CommonName   string
 }
 
+// The response that the Rest API returns
 type AirlineRest struct {
 	Meta Meta
 	Data []AirlineData
 }
 
+// Final Result format as per the SDK spec that the user expects
 type Airlines struct {
 	AmadeusResponse
 	Result AirlineRest

@@ -12,6 +12,8 @@ const (
 	POST Verb = "POST"
 )
 
+// Amadeus Request data contains all the required information for the amadeus
+// Rest client to make an HTTP request.
 type AmadeusRequestData struct {
 	Verb            Verb
 	Scheme          string

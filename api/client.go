@@ -17,6 +17,8 @@ func newClient(referencedataObj *referencedata.ReferenceData) client {
 	return client{referencedataObj}
 }
 
+//generateClient takes in a clientBuilder obj and created a new client using
+//the information set in the client builder
 func generateClient(cb clientBuilder) client {
 	config := service.NewConfiguration(
 		cb.clientId,
@@ -33,7 +35,7 @@ func generateClient(cb clientBuilder) client {
 		clientVersion,
 	)
 
-	restClient := &AmadeusHTTPRepository{}
+	restClient := &AmadeusRestClient{}
 	unAuthenticatedRequestCreator := service.NewUnAuthenticatedRequestCreator(config)
 	bufferTime := time.Duration(10)
 	accessTokenService := service.NewAccessTokenService(restClient, unAuthenticatedRequestCreator, bufferTime)
@@ -42,6 +44,8 @@ func generateClient(cb clientBuilder) client {
 
 	airlines := referencedata.NewAirlines(restClient, authenticatedRequestCreator)
 	locations := referencedata.NewLocations(restClient, authenticatedRequestCreator)
+	checkinlinks := referencedata.NewCheckinLinks(restClient, authenticatedRequestCreator)
+	urls := referencedata.NewUrls(checkinlinks)
 
 	/*// Initialize locations Service here
 	checkinLinksUrlPaths := map[types.Action]string{
@@ -55,6 +59,6 @@ func generateClient(cb clientBuilder) client {
 	urls := referencedata.NewUrls(checkinlinks)*/
 
 	// Create referencedData here. Only airlines implemented as of now*/
-	referencedataObj := referencedata.NewReferenceData("urls", locations, airlines)
+	referencedataObj := referencedata.NewReferenceData(urls, locations, airlines, restClient, authenticatedRequestCreator)
 	return newClient(referencedataObj)
 }

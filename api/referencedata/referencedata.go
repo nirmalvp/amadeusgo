@@ -1,19 +1,32 @@
 package referencedata
 
+import (
+	"github.com/nirmalvp/amadeusgo/api/interfaces"
+	"github.com/nirmalvp/amadeusgo/api/service"
+)
+
 type ReferenceData struct {
-	Urls      string
-	Locations *locations
-	Airlines  *airlines
+	Urls                        *urls
+	Locations                   *locations
+	Airlines                    *airlines
+	RestClient                  interfaces.AmadeusRest
+	AuthenticatedRequestCreator *service.AuthenticatedRequestCreator
 }
 
-func NewReferenceData(urls string, locations *locations, airlines *airlines) *ReferenceData {
+func NewReferenceData(urls *urls,
+	locations *locations,
+	airlines *airlines,
+	restClient interfaces.AmadeusRest,
+	authenticatedRequestCreator *service.AuthenticatedRequestCreator) *ReferenceData {
 	return &ReferenceData{
-		Urls:      urls,
-		Locations: locations,
-		Airlines:  airlines,
+		Urls:                        urls,
+		Locations:                   locations,
+		Airlines:                    airlines,
+		RestClient:                  restClient,
+		AuthenticatedRequestCreator: authenticatedRequestCreator,
 	}
 }
 
-/*func (referenceData *ReferenceData) Location(locationId string) *Location {
-	return NewLocation(locationId)
-}*/
+func (referenceData *ReferenceData) Location(locationId string) *location {
+	return NewLocation(locationId, referenceData.RestClient, referenceData.AuthenticatedRequestCreator)
+}

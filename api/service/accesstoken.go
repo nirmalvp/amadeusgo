@@ -15,6 +15,8 @@ type accessTokenResponse struct {
 	expiresIn   int    `json:"expires_in"`
 }
 
+// accessTokenService is service that when provided A client Id and client Response uses the rest client to
+// fetch the access token
 type accessTokenService struct {
 	pathUrl                       string
 	restClient                    interfaces.AmadeusRest

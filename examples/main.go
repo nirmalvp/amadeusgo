@@ -4,28 +4,30 @@ import (
 	"fmt"
 
 	"github.com/nirmalvp/amadeusgo/api"
-	"github.com/nirmalvp/amadeusgo/api/errors"
 	"github.com/nirmalvp/amadeusgo/api/params"
 )
 
 func main() {
-	client := api.NewClientBuilder("clientId", "clientSecret").Build()
+	client := api.NewClientBuilder().Build()
 
-	//params := params.With("IATACode", "AI,3H")
-	//statusCode, response, err := client.ReferencedData.Airlines.GetWithParams(params)
-	//params := params.With("keyword", "lon").And("subType", "AIRPORT,CITY")
-	//statusCode, response, err := client.ReferencedData.Locations.GetWithParams(params)
-	params := params.With("airline", "AF")
-	statusCode, response, err := client.ReferencedData.Urls.CheckinLinks.GetWithParams(params)
+	//urlParams := params.With("IATACode", "AI,3H")
+	//statusCode, response, err := client.ReferencedData.Airlines.GetWithParams(urlParams)
+	//urlParams = params.With("keyword", "lon").And("subType", "AIRPORT,CITY")
+	//statusCode, response, err := client.ReferencedData.Locations.GetWithParams(urlParams)
+	//urlParams := params.With("airline", "AF")
+	//statusCode, response, err := client.ReferencedData.Urls.CheckinLinks.GetWithParams(urlParams)
+	_ = params.With("IATACode", "AI,3H")
+	statusCode, response, err := client.ReferencedData.Location("ALHR").Get()
 
 	if err != nil {
-		if amadeusError, ok := err.(errors.AmadeusError); ok {
+		/*if responseError, ok := err.(errors.ResponseError); ok {
 			// handle API errors
 			fmt.Println(amadeusError)
-		} else {
-			//handle internal errors
-			fmt.Println(err)
-		}
+		} else {*/
+		//handle internal errors
+		fmt.Println("An errors occured")
+		fmt.Println(err)
+		//}
 		return
 	}
 	fmt.Println(statusCode)

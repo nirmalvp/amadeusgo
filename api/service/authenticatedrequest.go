@@ -50,6 +50,8 @@ func NewAuthenticatedRequestCreator(configuration Configuration, accessTokenServ
 	return &arc
 }
 
+//Create produces a authenticated request. It uses the client provided details to create the url to call as well
+//as uses the accessToken service to attach bearer tokens to the request
 func (authenticatedRequestCreator *AuthenticatedRequestCreator) Create(verb request.Verb, pathUrl string, params params.Params) (request.AmadeusRequestData, error) {
 	requestData := request.AmadeusRequestData{
 		Verb:            verb,

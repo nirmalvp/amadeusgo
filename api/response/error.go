@@ -7,9 +7,11 @@ import (
 	"github.com/nirmalvp/amadeusgo/api/request"
 )
 
-type ResponseErrorDataFallback struct {
-	Status string
-	Code   string
+// ResponseErrorData represents the body of the error responses produced by
+// Amadeus API
+type ResponseErrorData struct {
+	Status int
+	Code   int
 	Title  string
 	Detail string
 	Source struct {
@@ -17,9 +19,12 @@ type ResponseErrorDataFallback struct {
 	}
 }
 
-type ResponseErrorData struct {
-	Status int
-	Code   int
+// ResponseErrorDataFallback represents the body of the error responses produced by
+// Amadeus API. This is used as a fallback in case the error body doesnt match with ResponseErrorData.
+// THis is required to compensate for the inconsitency of error message body in Amadeus API
+type ResponseErrorDataFallback struct {
+	Status string
+	Code   string
 	Title  string
 	Detail string
 	Source struct {
@@ -57,13 +62,14 @@ func (re ResponseError) Error() string {
 
 func NewResponseError(statusCode int, restResp interface{}, request request.AmadeusRequestData, isParsed bool) ResponseError {
 	var restErrorResp RestErrorResponse
+	// If the response is of the fallback format, convert it in to the actual format
 	if restErrFallBack, ok := restResp.(RestErrorResponseFallback); ok {
 		restErrorResp.Error = restErrFallBack.Error
 		restErrorResp.ErrorDescription = restErrFallBack.ErrorDescription
 		restErrorResp.Code = restErrFallBack.Code
 		restErrorResp.Title = restErrFallBack.Title
-		restErrorResp.Errors = make([]ResponseErrorData, 0)
 		if len(restErrFallBack.Errors) > 0 {
+			restErrorResp.Errors = make([]ResponseErrorData, 0)
 			for _, errData := range restErrFallBack.Errors {
 				red := ResponseErrorData{Title: errData.Title, Detail: errData.Detail, Source: errData.Source}
 				status, err := strconv.Atoi(errData.Status)
@@ -78,7 +84,11 @@ func NewResponseError(statusCode int, restResp interface{}, request request.Amad
 	} else {
 		restErrorResp = restResp.(RestErrorResponse)
 	}
+
 	var result []ResponseErrorData
+	// Some error responses have an array of errors, where as some have a single error
+	// In case of a single error, convert it into a single element array anyway to provide
+	// consistency
 	if restErrorResp.Errors != nil {
 		result = restErrorResp.Errors
 	} else {
