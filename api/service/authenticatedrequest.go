@@ -77,7 +77,7 @@ func (authenticatedRequestCreator *AuthenticatedRequestCreator) Create(verb requ
 		authenticatedRequestCreator.clientSecret)
 	if err != nil {
 		if respErr, ok := err.(response.ResponseError); ok {
-			respErr.AmadeusResponse.Request = requestData
+			respErr.Response.AmadeusResponse.Request = requestData
 			return request.AmadeusRequestData{}, respErr
 		}
 		return request.AmadeusRequestData{}, err

@@ -1,6 +1,7 @@
 package response
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -9,7 +10,7 @@ import (
 
 // ResponseErrorData represents the body of the error responses produced by
 // Amadeus API
-type ResponseErrorData struct {
+type responseErrorData struct {
 	Status int
 	Code   int
 	Title  string
@@ -22,7 +23,7 @@ type ResponseErrorData struct {
 // ResponseErrorDataFallback represents the body of the error responses produced by
 // Amadeus API. This is used as a fallback in case the error body doesnt match with ResponseErrorData.
 // THis is required to compensate for the inconsitency of error message body in Amadeus API
-type ResponseErrorDataFallback struct {
+type responseErrorDataFallback struct {
 	Status string
 	Code   string
 	Title  string
@@ -32,84 +33,112 @@ type ResponseErrorDataFallback struct {
 	}
 }
 
-type RestErrorResponse struct {
-	Errors           []ResponseErrorData
+type restErrorResponse struct {
+	Errors           []responseErrorData
 	Error            string
 	ErrorDescription string `json:"error_description"`
 	Code             int
 	Title            string
 }
 
-type RestErrorResponseFallback struct {
-	Errors           []ResponseErrorDataFallback
+type restErrorResponseFallback struct {
+	Errors           []responseErrorDataFallback
 	Error            string
 	ErrorDescription string `json:"error_description"`
 	Code             int
 	Title            string
 }
 
-type ResponseError struct {
+type responseErrorResponse struct {
 	AmadeusResponse
+	Result restErrorResponse
+}
+type ResponseError struct {
+	Response    responseErrorResponse
 	Code        string
 	Description string
-	Result      []ResponseErrorData
 }
 
 func (re ResponseError) Error() string {
-	return fmt.Sprintf("AmadeusResponse = %+v\n Code = %s\n Description = %s\n Result = %s", re.AmadeusResponse, re.Code, re.Description, re.Result)
+	return fmt.Sprintf("Response = %+v\n Code = %s\n Description = %s\n", re.Response, re.Code, re.Description)
 
 }
 
-func NewResponseError(statusCode int, restResp interface{}, request request.AmadeusRequestData, isParsed bool) ResponseError {
-	var restErrorResp RestErrorResponse
-	// If the response is of the fallback format, convert it in to the actual format
-	if restErrFallBack, ok := restResp.(RestErrorResponseFallback); ok {
-		restErrorResp.Error = restErrFallBack.Error
-		restErrorResp.ErrorDescription = restErrFallBack.ErrorDescription
-		restErrorResp.Code = restErrFallBack.Code
-		restErrorResp.Title = restErrFallBack.Title
-		if len(restErrFallBack.Errors) > 0 {
-			restErrorResp.Errors = make([]ResponseErrorData, 0)
-			for _, errData := range restErrFallBack.Errors {
-				red := ResponseErrorData{Title: errData.Title, Detail: errData.Detail, Source: errData.Source}
-				status, err := strconv.Atoi(errData.Status)
-				isParsed = isParsed && err != nil
-				red.Status = status
-				code, err := strconv.Atoi(errData.Code)
-				red.Code = code
-				isParsed = isParsed && err != nil
-				restErrorResp.Errors = append(restErrorResp.Errors, red)
+func convertRestErrorResponseFallback(restErrFallBack restErrorResponseFallback) (restErrorResponse, bool) {
+	isSuccess := true
+	var restErrorResponse restErrorResponse
+	restErrorResponse.Error = restErrFallBack.Error
+	restErrorResponse.ErrorDescription = restErrFallBack.ErrorDescription
+	restErrorResponse.Code = restErrFallBack.Code
+	restErrorResponse.Title = restErrFallBack.Title
+	if len(restErrFallBack.Errors) > 0 {
+		restErrorResponse.Errors = make([]responseErrorData, 0)
+		for _, errData := range restErrFallBack.Errors {
+			red := responseErrorData{Title: errData.Title, Detail: errData.Detail, Source: errData.Source}
+			status, err := strconv.Atoi(errData.Status)
+			isSuccess = isSuccess && err != nil
+			red.Status = status
+			code, err := strconv.Atoi(errData.Code)
+			red.Code = code
+			isSuccess = isSuccess && err != nil
+			restErrorResponse.Errors = append(restErrorResponse.Errors, red)
+		}
+	}
+	return restErrorResponse, isSuccess
+}
+
+func NewResponseError(statusCode int, errorResponseBody []byte, request request.AmadeusRequestData) ResponseError {
+	var formatedErrorRestResponse restErrorResponse
+	parseError := json.Unmarshal(errorResponseBody, &formatedErrorRestResponse)
+	// Try two different error responses, falling back if the first doesnt work
+	// This is done due to a inconsistency in the error body returned
+	// from amadeus API
+	if parseError != nil {
+		var formatedErrorRestResponseFallback restErrorResponseFallback
+		parseFallbackError := json.Unmarshal(errorResponseBody, &formatedErrorRestResponseFallback)
+		if parseFallbackError != nil {
+			return ResponseError{
+				Response: responseErrorResponse{
+					AmadeusResponse: AmadeusResponse{
+						StatusCode: statusCode,
+						Request:    request,
+						Body:       string(errorResponseBody),
+						Parsed:     false,
+					},
+				},
+				Code:        "blah", // replace me
+				Description: "blah", // replace me
 			}
 		}
-	} else {
-		restErrorResp = restResp.(RestErrorResponse)
-	}
-
-	var result []ResponseErrorData
-	// Some error responses have an array of errors, where as some have a single error
-	// In case of a single error, convert it into a single element array anyway to provide
-	// consistency
-	if restErrorResp.Errors != nil {
-		result = restErrorResp.Errors
-	} else {
-		result = append(result,
-			ResponseErrorData{
-				Status: statusCode,
-				Code:   restErrorResp.Code,
-				Title:  restErrorResp.Title,
-				Detail: restErrorResp.ErrorDescription,
-			},
-		)
+		var isSuccess bool
+		formatedErrorRestResponse, isSuccess = convertRestErrorResponseFallback(formatedErrorRestResponseFallback)
+		if !isSuccess {
+			return ResponseError{
+				Response: responseErrorResponse{
+					AmadeusResponse: AmadeusResponse{
+						StatusCode: statusCode,
+						Request:    request,
+						Body:       string(errorResponseBody),
+						Parsed:     false,
+					},
+				},
+				Code:        "blah", // replace me
+				Description: "blah", // replace me
+			}
+		}
 	}
 	return ResponseError{
-		AmadeusResponse: AmadeusResponse{
-			StatusCode: statusCode,
-			Request:    request,
-			Parsed:     isParsed,
+		Response: responseErrorResponse{
+			AmadeusResponse: AmadeusResponse{
+				StatusCode: statusCode,
+				Request:    request,
+				Body:       string(errorResponseBody),
+				Parsed:     true,
+			},
+			Result: formatedErrorRestResponse,
 		},
 		Code:        "blah", // replace me
 		Description: "blah", // replace me
-		Result:      result,
 	}
 
 }

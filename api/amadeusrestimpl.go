@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/nirmalvp/amadeusgo/api/request"
@@ -46,18 +45,7 @@ func (amRepo *AmadeusRestClient) Send(amRequest request.AmadeusRequestData) (int
 	httpresponse = []byte(body)
 	statusCode := resp.StatusCode
 	if statusCode >= 400 {
-		// Try two different error responses, falling back if the first doesnt work
-		// This is done due to a inconsistency in the error body returned
-		// from amadeus API
-		errorResponse := response.RestErrorResponse{}
-		unmarshallErr := json.Unmarshal(httpresponse, &errorResponse)
-		if unmarshallErr != nil {
-			fmt.Println("Unmarshal failed. Trying fallback", unmarshallErr)
-			errorResponseFallback := response.RestErrorResponseFallback{}
-			unmarshallErr = json.Unmarshal(httpresponse, &errorResponseFallback)
-			return 0, nil, response.NewResponseError(statusCode, errorResponseFallback, amRequest, unmarshallErr == nil)
-		}
-		return 0, nil, response.NewResponseError(statusCode, errorResponse, amRequest, true)
+		return 0, nil, response.NewResponseError(statusCode, httpresponse, amRequest)
 	}
 	return statusCode, httpresponse, nil
 }
