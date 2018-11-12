@@ -13,10 +13,6 @@ type client struct {
 	ReferencedData *referencedata.ReferenceData
 }
 
-func newClient(referencedataObj *referencedata.ReferenceData) client {
-	return client{referencedataObj}
-}
-
 //generateClient takes in a clientBuilder obj and created a new client using
 //the information set in the client builder
 func generateClient(cb clientBuilder) client {
@@ -61,5 +57,5 @@ func generateClient(cb clientBuilder) client {
 
 	// Create referencedData here. Only airlines implemented as of now*/
 	referencedataObj := referencedata.NewReferenceData(urls, locations, airlines, restClient, authenticatedRequestCreator)
-	return newClient(referencedataObj)
+	return client{referencedataObj}
 }
