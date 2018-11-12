@@ -34,18 +34,17 @@ func NewAuthenticatedRequestCreator(configuration Configuration, accessTokenServ
 		appId:              configuration.appId,
 		appVersion:         configuration.appVersion,
 		port:               configuration.port,
-		ssl:                configuration.ssl,
 		accept:             configuration.accept,
 		accessTokenService: accessTokenService,
 	}
-	if arc.ssl {
+	if configuration.ssl {
 		arc.scheme = "https"
 	} else {
 		arc.scheme = "http"
 	}
 	arc.userAgent = fmt.Sprintf("amadeus-go/%s go/%s", arc.clientVersion, arc.languageVersion)
 	if arc.appId != nil && arc.appVersion != nil {
-		arc.userAgent = arc.userAgent + fmt.Sprintf(" %s/%s", arc.appId, arc.appVersion)
+		arc.userAgent = arc.userAgent + fmt.Sprintf(" %s/%s", *arc.appId, *arc.appVersion)
 	}
 	return &arc
 }
@@ -54,24 +53,13 @@ func NewAuthenticatedRequestCreator(configuration Configuration, accessTokenServ
 //as uses the accessToken service to attach bearer tokens to the request
 func (authenticatedRequestCreator *AuthenticatedRequestCreator) Create(verb request.Verb, pathUrl string, params params.Params) (request.AmadeusRequestData, error) {
 	requestData := request.AmadeusRequestData{
-		Verb:            verb,
-		Host:            authenticatedRequestCreator.host,
-		Path:            pathUrl,
-		Params:          params,
-		LanguageVersion: authenticatedRequestCreator.languageVersion,
-		ClientVersion:   authenticatedRequestCreator.clientVersion,
-		AppId:           authenticatedRequestCreator.appId,
-		AppVersion:      authenticatedRequestCreator.appVersion,
-		Port:            authenticatedRequestCreator.port,
-		SSL:             authenticatedRequestCreator.ssl,
-		Scheme:          authenticatedRequestCreator.scheme,
-		UserAgent:       authenticatedRequestCreator.userAgent,
-		Accept:          authenticatedRequestCreator.accept,
+		Verb:   verb,
+		Params: params,
 	}
-	requestData.URI = fmt.Sprintf("%s://%s:%d%s", requestData.Scheme, requestData.Host, requestData.Port, requestData.Path)
+	requestData.URI = fmt.Sprintf("%s://%s:%d%s", authenticatedRequestCreator.scheme, authenticatedRequestCreator.host, authenticatedRequestCreator.port, pathUrl)
 	requestData.Headers = make(request.Header)
-	requestData.Headers["User-Agent"] = requestData.UserAgent
-	requestData.Headers["Accept"] = requestData.Accept
+	requestData.Headers["User-Agent"] = authenticatedRequestCreator.userAgent
+	requestData.Headers["Accept"] = authenticatedRequestCreator.accept
 	bearerToken, err := authenticatedRequestCreator.accessTokenService.getBearerToken(
 		authenticatedRequestCreator.clientId,
 		authenticatedRequestCreator.clientSecret)
