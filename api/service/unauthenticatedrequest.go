@@ -8,8 +8,6 @@ import (
 )
 
 type UnAuthenticatedRequestCreator struct {
-	clientId        string
-	clientSecret    string
 	scheme          string
 	host            string
 	clientVersion   string
@@ -23,8 +21,6 @@ type UnAuthenticatedRequestCreator struct {
 
 func NewUnAuthenticatedRequestCreator(configuration Configuration) *UnAuthenticatedRequestCreator {
 	aurc := UnAuthenticatedRequestCreator{
-		clientId:        configuration.clientId,
-		clientSecret:    configuration.clientSecret,
 		host:            configuration.host,
 		accept:          configuration.accept,
 		languageVersion: configuration.languageVersion,

@@ -33,11 +33,14 @@ func generateClient(cb clientBuilder) client {
 
 	restClient := &AmadeusRestClient{}
 	unAuthenticatedRequestCreator := service.NewUnAuthenticatedRequestCreator(config)
-	bufferTime := time.Duration(10)
-	accessTokenService := service.NewAccessTokenService(restClient, unAuthenticatedRequestCreator, bufferTime)
-
+	bufferTime := time.Duration(10) * time.Second
+	timeGetter := service.SystemTimeGetter{}
+	accessTokenService := service.NewAccessTokenService(restClient,
+		unAuthenticatedRequestCreator,
+		bufferTime,
+		timeGetter,
+	)
 	authenticatedRequestCreator := service.NewAuthenticatedRequestCreator(config, accessTokenService)
-
 	airlines := referencedata.NewAirlines(restClient, authenticatedRequestCreator)
 	airports := referencedata.NewAirports(restClient, authenticatedRequestCreator)
 	locations := referencedata.NewLocations(restClient, authenticatedRequestCreator, airports)

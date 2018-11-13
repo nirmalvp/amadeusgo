@@ -34,8 +34,6 @@ func TestNewUnAuthenticatedRequestCreator(t *testing.T) {
 				clientVersion:   "clientVersion",
 			},
 			expected: &UnAuthenticatedRequestCreator{
-				clientId:        "clientId",
-				clientSecret:    "clientSecret",
 				host:            "host",
 				languageVersion: "languageVersion",
 				clientVersion:   "clientVersion",
@@ -61,8 +59,6 @@ func TestNewUnAuthenticatedRequestCreator(t *testing.T) {
 				clientVersion:   "clientVersion",
 			},
 			expected: &UnAuthenticatedRequestCreator{
-				clientId:        "clientId",
-				clientSecret:    "clientSecret",
 				host:            "host",
 				languageVersion: "languageVersion",
 				clientVersion:   "clientVersion",
@@ -88,8 +84,6 @@ func TestNewUnAuthenticatedRequestCreator(t *testing.T) {
 				clientVersion:   "clientVersion",
 			},
 			expected: &UnAuthenticatedRequestCreator{
-				clientId:        "clientId",
-				clientSecret:    "clientSecret",
 				host:            "host",
 				languageVersion: "languageVersion",
 				clientVersion:   "clientVersion",
@@ -118,8 +112,6 @@ func TestCreate(t *testing.T) {
 	}{
 		{
 			requestCreator: &UnAuthenticatedRequestCreator{
-				clientId:        "clientId",
-				clientSecret:    "clientSecret",
 				host:            "host",
 				languageVersion: "languageVersion",
 				clientVersion:   "clientVersion",
@@ -143,8 +135,6 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			requestCreator: &UnAuthenticatedRequestCreator{
-				clientId:        "clientId",
-				clientSecret:    "clientSecret",
 				host:            "host",
 				languageVersion: "languageVersion",
 				clientVersion:   "clientVersion",
